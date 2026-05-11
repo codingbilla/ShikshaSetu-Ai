@@ -5,13 +5,54 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "gemma4:31b-cloud"
 
 
+def detect_student_level(prompt: str) -> str:
+    prompt_lower = prompt.lower()
+
+    if "college student" in prompt_lower:
+        return "College Student"
+    if "ssc aspirant" in prompt_lower or "ssc" in prompt_lower:
+        return "SSC Aspirant"
+    if "school student" in prompt_lower:
+        return "School Student"
+    return "Beginner"
+
+
+def level_style(level: str) -> str:
+    if level == "Beginner":
+        return """
+**Level: Beginner**  
+Main explanation simple words me dunga, short points aur easy examples ke saath.
+"""
+
+    if level == "School Student":
+        return """
+**Level: School Student**  
+Main answer school-level language me dunga, clear definitions, examples aur easy points ke saath.
+"""
+
+    if level == "SSC Aspirant":
+        return """
+**Level: SSC Aspirant**  
+Main answer exam-oriented dunga: facts, keywords, PYQ-style points, memory tricks aur SSC tip ke saath.
+"""
+
+    if level == "College Student":
+        return """
+**Level: College Student**  
+Main answer thoda deeper analytical way me dunga: background, concept, comparison, causes/effects aur structured explanation ke saath.
+"""
+
+    return ""
+
+
 def fallback_response(prompt: str) -> str:
     """
     Streamlit Cloud par local Ollama access nahi hota.
-    Isliye agar Gemma/Ollama fail ho, to demo-friendly fallback answer return hoga.
-    Local PC par Ollama running hai to real Gemma response hi aayega.
+    Isliye agar Gemma/Ollama fail ho, to level-aware fallback answer return hoga.
     """
     prompt_lower = prompt.lower()
+    level = detect_student_level(prompt)
+    style = level_style(level)
 
     # -----------------------------
     # Quiz fallback
@@ -22,8 +63,23 @@ def fallback_response(prompt: str) -> str:
         or "mcq" in prompt_lower
         or "multiple choice" in prompt_lower
     ):
-        return """
-## 📝 Demo Quiz: Indus Valley Civilization ✅
+        if level == "Beginner":
+            difficulty_note = "Questions simple aur direct facts par based hain."
+        elif level == "School Student":
+            difficulty_note = "Questions school exam level ke according hain."
+        elif level == "SSC Aspirant":
+            difficulty_note = "Questions SSC CGL/CHSL/MTS pattern ke high-yield facts par based hain."
+        else:
+            difficulty_note = "Questions concept + factual understanding dono test karte hain."
+
+        return f"""
+## 📝 Demo Quiz Generated ✅
+
+{style}
+
+**Difficulty Note:** {difficulty_note}
+
+### Topic: Indus Valley Civilization
 
 **Q1. Indus Valley Civilization ko aur kis naam se jaana jaata hai?**  
 A) Vedic Civilization  
@@ -91,12 +147,23 @@ D) Horse riding
         or "score" in prompt_lower
         or "improved answer" in prompt_lower
     ):
-        return """
+        if level == "Beginner":
+            score_note = "Beginner level ke hisaab se basic keywords sahi hain, bas explanation badhani hai."
+        elif level == "SSC Aspirant":
+            score_note = "SSC exam ke liye keywords ke saath factual depth aur examples zaroori hain."
+        elif level == "College Student":
+            score_note = "College level ke liye analytical depth, context aur structured explanation chahiye."
+        else:
+            score_note = "School level ke liye answer understandable hai, lekin points clear karne honge."
+
+        return f"""
 ## ✅ Answer Evaluation
+
+{style}
 
 **Score: 4/10**
 
-Aapke answer me kuch correct keywords hain, lekin explanation short hai.
+**Reason:** {score_note}
 
 ### Correct Points ✅
 - Planned cities
@@ -114,16 +181,14 @@ Aapke answer me kuch correct keywords hain, lekin explanation short hai.
 
 Harappan Civilization advanced town planning ke liye famous thi. Cities grid pattern par bani thi aur generally Citadel aur Lower Town me divided thi. Inka drainage system bahut advanced tha, covered drains aur baked bricks ka use hota tha. Mohenjo-daro me Great Bath mila hai, jo hygiene ya ritual bathing ko show karta hai. Granaries food storage ke liye use hote the. Harappan people agriculture, trade aur seals ka use bhi karte the.
 
-### Final Exam Tip 💡
-Exam me sirf keywords mat likho. Har point ko 1–2 line me explain karo.
+### Final Tip 💡
+Answer likhte waqt keywords ke saath short explanation zaroor add karo.
 
 > Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
 """
 
     # -----------------------------
     # Study plan fallback
-    # IMPORTANT:
-    # "plan" or "days" alone mat use karo, warna Ask Doubt bhi study plan trigger kar deta hai.
     # -----------------------------
     if (
         "make study plan" in prompt_lower
@@ -132,8 +197,21 @@ Exam me sirf keywords mat likho. Har point ko 1–2 line me explain karo.
         or "day-wise study plan" in prompt_lower
         or "daily study roadmap" in prompt_lower
     ):
-        return """
+        if level == "Beginner":
+            plan_focus = "Basic concepts, simple revision aur daily habit building."
+        elif level == "School Student":
+            plan_focus = "Chapter-wise learning, notes, school exam practice."
+        elif level == "SSC Aspirant":
+            plan_focus = "PYQ, static GK, current affairs, mock tests aur mistake notebook."
+        else:
+            plan_focus = "Conceptual depth, research-oriented notes, analytical writing and revision."
+
+        return f"""
 ## 📅 30-Day Study Plan ✅
+
+{style}
+
+**Plan Focus:** {plan_focus}
 
 ### Phase 1: Core Topics
 
@@ -173,17 +251,43 @@ Focus: Books, awards, sports, important days, dances, festivals.
 - 30 minutes revision
 
 ### Final Tip
-PYQ + mistake notebook follow karo. SSC GK me repeated pattern bahut important hota hai.
+PYQ + mistake notebook follow karo. Exam pattern samajhna bahut important hai.
 
 > Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
 """
 
     # -----------------------------
-    # Ask Doubt fallback
+    # Ask Doubt fallback: Buddhism vs Jainism
     # -----------------------------
     if "buddhism" in prompt_lower and "jainism" in prompt_lower:
-        return """
-## Simple Explanation ✅
+        if level == "Beginner":
+            extra = """
+### Easy Summary
+Buddhism ka path balanced hai, Jainism ka path zyada strict hai.
+"""
+        elif level == "School Student":
+            extra = """
+### School-Level Summary
+Dono religions ne Vedic rituals ka विरोध किया, lekin Buddhism ne Middle Path aur Jainism ne strict Ahimsa par zyada focus kiya.
+"""
+        elif level == "SSC Aspirant":
+            extra = """
+### SSC High-Yield Points
+- Buddhism = Gautam Buddha, Middle Path, Nirvana  
+- Jainism = Mahavira, strict Ahimsa, Moksha  
+- Buddhism India ke bahar bhi spread hua  
+- Jainism mostly India me strong raha  
+"""
+        else:
+            extra = """
+### College-Level Analysis
+Buddhism and Jainism emerged as Shramana movements in response to ritualism and social rigidity of the later Vedic period. Both questioned sacrifice-based religion and emphasized ethical conduct, but Buddhism adopted a more moderate psychological path, while Jainism emphasized metaphysical pluralism and extreme ascetic discipline.
+"""
+
+        return f"""
+## Buddhism aur Jainism me Difference ✅
+
+{style}
 
 Buddhism aur Jainism dono 6th century BCE ke around India me develop hue. Dono ne Vedic rituals aur animal sacrifice ka विरोध किया, lekin inke principles me kuch important differences hain.
 
@@ -198,19 +302,51 @@ Buddhism aur Jainism dono 6th century BCE ke around India me develop hue. Dono n
 | Goal | Nirvana | Moksha |
 | Spread | India ke bahar bhi spread hua | Mostly India me strong raha |
 
+{extra}
+
 ### Memory Trick 💡
 **Buddhism = Balance / Middle Path**  
 **Jainism = Strict Ahimsa / Tapasya**
 
 ### Exam Tip
-SSC me founder, path, ahimsa, soul aur moksha/nirvana wale differences frequently asked hote hain.
+Founder, path, ahimsa, soul aur moksha/nirvana wale differences yaad rakho.
 
 > Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
 """
 
+    # -----------------------------
+    # Ask Doubt fallback: Indus / Harappan
+    # -----------------------------
     if "indus" in prompt_lower or "harappan" in prompt_lower or "ivc" in prompt_lower:
-        return """
-## Simple Explanation ✅
+        if level == "Beginner":
+            extra = """
+### Easy Meaning
+IVC ek purani civilization thi jahan log planned cities me rehte the.
+"""
+        elif level == "School Student":
+            extra = """
+### School-Level Explanation
+Harappan cities planned thi, drainage system advanced tha, aur trade ke liye seals ka use hota tha.
+"""
+        elif level == "SSC Aspirant":
+            extra = """
+### SSC High-Yield Facts
+- Harappa: first discovered site  
+- Mohenjo-daro: Great Bath  
+- Lothal: Dockyard  
+- Kalibangan: Fire altars  
+- Iron: not known to Harappans  
+"""
+        else:
+            extra = """
+### College-Level Analysis
+The Indus Valley Civilization represents an advanced urban phase of the Bronze Age in South Asia. Its planned cities, standardized bricks, drainage networks, craft specialization and trade links indicate a complex socio-economic organization.
+"""
+
+        return f"""
+## Indus Valley Civilization ✅
+
+{style}
 
 Indus Valley Civilization, jise Harappan Civilization bhi kehte hain, duniya ki earliest urban civilizations me se ek thi. Ye mainly town planning, drainage system, trade, seals, granaries aur Great Bath ke liye famous thi.
 
@@ -222,6 +358,8 @@ Indus Valley Civilization, jise Harappan Civilization bhi kehte hain, duniya ki 
 - Harappan people copper aur bronze use karte the, lekin iron se aware nahi the.
 - Seals trade aur identification ke liye use hoti thi.
 
+{extra}
+
 ### Exam Tip
 Remember:  
 **Harappa = first discovered site**  
@@ -231,8 +369,13 @@ Remember:
 > Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
 """
 
-    return """
+    # -----------------------------
+    # General Ask Doubt fallback
+    # -----------------------------
+    return f"""
 ## Simple Explanation ✅
+
+{style}
 
 Yeh topic important hai. Isko exam point of view se short points me samajhna best rahega.
 
@@ -243,24 +386,14 @@ Yeh topic important hai. Isko exam point of view se short points me samajhna bes
 - Example ya memory trick add karo.
 - Last me exam tip revise karo.
 
-### Exam Tip
-Answer likhte waqt keywords ko clear rakho aur points ko bullet format me likho.
+### Final Tip
+Apne level ke hisaab se answer me depth add karo. Beginner ke liye simple, SSC ke liye facts, aur College level ke liye analysis important hota hai.
 
 > Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
 """
 
 
 def ask_gemma(prompt: str) -> str:
-    """
-    Local setup:
-    - Ollama running ho
-    - gemma4:31b-cloud model available ho
-    To real Gemma response aayega.
-
-    Streamlit Cloud:
-    - Localhost Ollama available nahi hota
-    - Fallback response return hoga
-    """
     try:
         payload = {
             "model": MODEL_NAME,
