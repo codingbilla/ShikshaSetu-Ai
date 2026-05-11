@@ -6,13 +6,26 @@ MODEL_NAME = "gemma4:31b-cloud"
 
 
 def fallback_response(prompt: str) -> str:
+    """
+    Streamlit Cloud par local Ollama access nahi hota.
+    Isliye agar Gemma/Ollama fail ho, to demo-friendly fallback answer return hoga.
+    Local PC par Ollama running hai to real Gemma response hi aayega.
+    """
     prompt_lower = prompt.lower()
 
-    if "quiz" in prompt_lower or "mcq" in prompt_lower:
+    # -----------------------------
+    # Quiz fallback
+    # -----------------------------
+    if (
+        "generate quiz" in prompt_lower
+        or "quiz" in prompt_lower
+        or "mcq" in prompt_lower
+        or "multiple choice" in prompt_lower
+    ):
         return """
-### Demo Quiz Generated ✅
+## 📝 Demo Quiz: Indus Valley Civilization ✅
 
-**Q1. Indus Valley Civilization ko kis naam se bhi jaana jaata hai?**  
+**Q1. Indus Valley Civilization ko aur kis naam se jaana jaata hai?**  
 A) Vedic Civilization  
 B) Harappan Civilization  
 C) Mauryan Civilization  
@@ -20,6 +33,8 @@ D) Gupta Civilization
 
 **Correct Answer:** B) Harappan Civilization  
 **Explanation:** Harappa site sabse pehle discover hui thi, isliye ise Harappan Civilization bhi kehte hain.
+
+---
 
 **Q2. Great Bath kis site se mila tha?**  
 A) Harappa  
@@ -30,6 +45,8 @@ D) Kalibangan
 **Correct Answer:** C) Mohenjo-daro  
 **Explanation:** Great Bath Mohenjo-daro ka famous public bathing structure tha.
 
+---
+
 **Q3. Lothal kis cheez ke liye famous hai?**  
 A) Dockyard  
 B) Iron tools  
@@ -39,6 +56,8 @@ D) Rock edicts
 **Correct Answer:** A) Dockyard  
 **Explanation:** Lothal Gujarat me ek important port city thi.
 
+---
+
 **Q4. IVC ke log kis metal se anjaan the?**  
 A) Copper  
 B) Bronze  
@@ -46,7 +65,9 @@ C) Gold
 D) Iron  
 
 **Correct Answer:** D) Iron  
-**Explanation:** IVC Bronze Age civilization thi.
+**Explanation:** IVC Bronze Age civilization thi. Iron ka use later period me common hua.
+
+---
 
 **Q5. IVC ki sabse important feature kya thi?**  
 A) Town planning  
@@ -57,64 +78,91 @@ D) Horse riding
 **Correct Answer:** A) Town planning  
 **Explanation:** Grid pattern cities aur drainage system IVC ki major features thi.
 
-> Note: This is a cloud fallback response. Full Gemma response works when Ollama/Gemma is available locally.
+> Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
 """
 
-    if "check" in prompt_lower or "evaluate" in prompt_lower or "score" in prompt_lower:
+    # -----------------------------
+    # Answer check fallback
+    # -----------------------------
+    if (
+        "check my answer" in prompt_lower
+        or "evaluate" in prompt_lower
+        or "student answer" in prompt_lower
+        or "score" in prompt_lower
+        or "improved answer" in prompt_lower
+    ):
         return """
-### Answer Evaluation ✅
+## ✅ Answer Evaluation
 
 **Score: 4/10**
 
-Your answer has some correct keywords, but it needs more explanation.
+Aapke answer me kuch correct keywords hain, lekin explanation short hai.
 
-### Correct Points
+### Correct Points ✅
 - Planned cities
 - Drainage system
 - Trade and seals
 
-### Missing Points
+### Missing Points ❌
 - Citadel and Lower Town
 - Great Bath
 - Granaries
 - Agriculture
 - Social structure
 
-### Improved Answer
+### Improved Answer ✍️
 
-Harappan Civilization was known for advanced town planning. Cities were built in a grid pattern and divided into Citadel and Lower Town. The drainage system was well-developed and covered. Important structures like the Great Bath and granaries show their focus on hygiene and storage. They practiced agriculture, trade, and used seals for commercial purposes.
+Harappan Civilization advanced town planning ke liye famous thi. Cities grid pattern par bani thi aur generally Citadel aur Lower Town me divided thi. Inka drainage system bahut advanced tha, covered drains aur baked bricks ka use hota tha. Mohenjo-daro me Great Bath mila hai, jo hygiene ya ritual bathing ko show karta hai. Granaries food storage ke liye use hote the. Harappan people agriculture, trade aur seals ka use bhi karte the.
 
-### Final Tip
-In exams, write answers in bullet points with keywords and 1–2 line explanation.
+### Final Exam Tip 💡
+Exam me sirf keywords mat likho. Har point ko 1–2 line me explain karo.
 
-> Note: This is a cloud fallback response. Full Gemma response works when Ollama/Gemma is available locally.
+> Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
 """
 
-    if "study plan" in prompt_lower or "plan" in prompt_lower or "days" in prompt_lower:
+    # -----------------------------
+    # Study plan fallback
+    # IMPORTANT:
+    # "plan" or "days" alone mat use karo, warna Ask Doubt bhi study plan trigger kar deta hai.
+    # -----------------------------
+    if (
+        "make study plan" in prompt_lower
+        or "study plan" in prompt_lower
+        or "personalized study plan" in prompt_lower
+        or "day-wise study plan" in prompt_lower
+        or "daily study roadmap" in prompt_lower
+    ):
         return """
-### 30-Day Study Plan ✅
+## 📅 30-Day Study Plan ✅
 
-## Phase 1: Core Topics  
-**Day 1–5:** Indian Polity  
-Focus: Constitution, Fundamental Rights, Parliament, President.
+### Phase 1: Core Topics
 
-**Day 6–10:** History  
-Focus: Ancient India, Medieval India, Modern India.
+**Day 1–5: Indian Polity**  
+Focus: Constitution, Fundamental Rights, Parliament, President, Important Articles.
 
-**Day 11–15:** Geography  
+**Day 6–10: History**  
+Focus: Ancient India, Medieval India, Modern India, Freedom Movement.
+
+**Day 11–15: Geography**  
 Focus: Rivers, mountains, climate, soil, map practice.
 
-## Phase 2: Score Boosters  
-**Day 16–20:** General Science  
+---
+
+### Phase 2: Score Boosters
+
+**Day 16–20: General Science**  
 Focus: Biology, Physics, Chemistry basics.
 
-**Day 21–24:** Economics  
+**Day 21–24: Economics**  
 Focus: GDP, inflation, banking, RBI, budget.
 
-**Day 25–27:** Static GK  
-Focus: books, awards, sports, days, dances.
+**Day 25–27: Static GK**  
+Focus: Books, awards, sports, important days, dances, festivals.
 
-## Phase 3: Revision  
+---
+
+### Phase 3: Revision
+
 **Day 28:** Full revision  
 **Day 29:** Mock test + mistake notebook  
 **Day 30:** Final light revision
@@ -124,29 +172,95 @@ Focus: books, awards, sports, days, dances.
 - 1 hour MCQs
 - 30 minutes revision
 
-> Note: This is a cloud fallback response. Full Gemma response works when Ollama/Gemma is available locally.
+### Final Tip
+PYQ + mistake notebook follow karo. SSC GK me repeated pattern bahut important hota hai.
+
+> Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
+"""
+
+    # -----------------------------
+    # Ask Doubt fallback
+    # -----------------------------
+    if "buddhism" in prompt_lower and "jainism" in prompt_lower:
+        return """
+## Simple Explanation ✅
+
+Buddhism aur Jainism dono 6th century BCE ke around India me develop hue. Dono ne Vedic rituals aur animal sacrifice ka विरोध किया, lekin inke principles me kuch important differences hain.
+
+### Important Differences
+
+| Point | Buddhism | Jainism |
+|---|---|---|
+| Founder | Gautam Buddha | Mahavira ko 24th Tirthankara maana jata hai |
+| Path | Middle Path | Extreme Tapasya |
+| Soul | Permanent soul ko accept nahi karta | Har living being me soul maanta hai |
+| Ahimsa | Ahimsa important hai | Ahimsa bahut strict hai |
+| Goal | Nirvana | Moksha |
+| Spread | India ke bahar bhi spread hua | Mostly India me strong raha |
+
+### Memory Trick 💡
+**Buddhism = Balance / Middle Path**  
+**Jainism = Strict Ahimsa / Tapasya**
+
+### Exam Tip
+SSC me founder, path, ahimsa, soul aur moksha/nirvana wale differences frequently asked hote hain.
+
+> Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
+"""
+
+    if "indus" in prompt_lower or "harappan" in prompt_lower or "ivc" in prompt_lower:
+        return """
+## Simple Explanation ✅
+
+Indus Valley Civilization, jise Harappan Civilization bhi kehte hain, duniya ki earliest urban civilizations me se ek thi. Ye mainly town planning, drainage system, trade, seals, granaries aur Great Bath ke liye famous thi.
+
+### Key Points
+- Cities grid pattern par planned thi.
+- Drainage system advanced aur covered tha.
+- Great Bath Mohenjo-daro se mila.
+- Lothal ek important dockyard/port city thi.
+- Harappan people copper aur bronze use karte the, lekin iron se aware nahi the.
+- Seals trade aur identification ke liye use hoti thi.
+
+### Exam Tip
+Remember:  
+**Harappa = first discovered site**  
+**Mohenjo-daro = Great Bath**  
+**Lothal = Dockyard**
+
+> Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
 """
 
     return """
-### Simple Explanation ✅
+## Simple Explanation ✅
 
-Indus Valley Civilization, also called Harappan Civilization, was one of the earliest urban civilizations of the world. It was famous for planned cities, advanced drainage system, trade, seals, granaries, and the Great Bath.
+Yeh topic important hai. Isko exam point of view se short points me samajhna best rahega.
 
 ### Key Points
-- Cities were built in grid pattern.
-- Drainage system was very advanced.
-- Great Bath was found at Mohenjo-daro.
-- Lothal was an important dockyard.
-- People used copper and bronze but not iron.
+- Topic ka basic meaning samjho.
+- Important facts ya keywords note karo.
+- 3–5 bullet points me answer likho.
+- Example ya memory trick add karo.
+- Last me exam tip revise karo.
 
 ### Exam Tip
-Remember: **Harappa = first discovered site**, **Mohenjo-daro = Great Bath**, **Lothal = Dockyard**.
+Answer likhte waqt keywords ko clear rakho aur points ko bullet format me likho.
 
-> Note: This is a cloud fallback response. Full Gemma response works when Ollama/Gemma is available locally.
+> Note: This is a hosted demo fallback. Full Gemma response works when Ollama/Gemma is available locally.
 """
 
 
 def ask_gemma(prompt: str) -> str:
+    """
+    Local setup:
+    - Ollama running ho
+    - gemma4:31b-cloud model available ho
+    To real Gemma response aayega.
+
+    Streamlit Cloud:
+    - Localhost Ollama available nahi hota
+    - Fallback response return hoga
+    """
     try:
         payload = {
             "model": MODEL_NAME,
